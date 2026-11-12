@@ -55,8 +55,8 @@ def generate_launch_description():
             # TODO: 4.4.b Navsat Node
             # Example: (topic, remaped_topic)
             ### STUDENT CODE HERE
-            ('/stinger/imu/data', 'imu'),
-            ('/stinger/gps/fix', '/gps/fix'),
+            ('/imu', '/stinger/imu/data'),
+            ('/gps/fix', '/stinger/gps/fix'),
             ### END STUDENT CODE
             ],
             output='screen'

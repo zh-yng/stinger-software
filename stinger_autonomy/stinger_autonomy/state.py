@@ -96,7 +96,12 @@ class StateMachine(Node):
 
         # TODO: 7.1.a Transition condition to move out of Search State
         ### STUDENT CODE HERE
-
+        # Align toward the gate, then leave Search once misalignment is small
+        cmd_vel.angular.z = self.angular_correction_factor * turn_angle
+        if abs(cmd_vel.angular.z) > 0.1:
+            cmd_vel.angular.z = np.sign(cmd_vel.angular.z) * 0.1
+        if abs(turn_angle) < 0.1:
+            self.state = State.Approaching
         ### END STUDENT CODE
         return cmd_vel
     
@@ -127,7 +132,10 @@ class StateMachine(Node):
 
         # TODO: 7.1.b Transition condition to move out of Approach State
         ### STUDENT CODE HERE
-
+        # Near/through the gate the buoy pair fills more of the image FOV
+        if gate_fov_bound > 0.5:
+            self.pre_push_time = self.get_clock().now()
+            self.state = State.Passing_Through
         ### END STUDENT CODE
 
         return cmd_vel

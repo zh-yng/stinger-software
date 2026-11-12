@@ -44,7 +44,10 @@ class Detection(Node):
         # [0, 255), what hue value might cyan be.
         self.question_3 = None
         ### STUDENT CODE HERE
-
+        self.question_1 = True
+        self.question_2 = False
+        # OpenCV hue is [0, 179]; cyan (~180 deg) maps to ~90
+        self.question_3 = 90
         ### END STUDENT CODE
 
         self.red_lower = np.zeros((3,))
@@ -71,7 +74,14 @@ class Detection(Node):
 
         # TODO: 6.1.b Masking 
         ### STUDENT CODE HERE
+        # OpenCV HSV: H [0,179], S/V [0,255]. Red wraps near 0; green near 60.
+        self.red_lower = np.array([0, 100, 100])
+        self.red_upper = np.array([10, 255, 255])
+        self.green_lower = np.array([40, 50, 50])
+        self.green_upper = np.array([90, 255, 255])
 
+        red_mask = cv2.inRange(self.hsv, self.red_lower, self.red_upper)
+        green_mask = cv2.inRange(self.hsv, self.green_lower, self.green_upper)
         ### END STUDENT CODE
         
         cv2.imshow("Red_mask", red_mask)
@@ -103,7 +113,9 @@ class Detection(Node):
 
         # TODO: 6.1.c Contours
         ### STUDENT CODE HERE
-
+        contours, _ = cv2.findContours(
+            mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
         ### END STUDENT CODE
         detected = []
 
@@ -112,7 +124,9 @@ class Detection(Node):
             (x, y), radius = cv2.minEnclosingCircle(cnt)
             cv2.circle(self.frame, (int(x), int(y)), int(radius), (255, 0, 0), 3)
             ### STUDENT CODE HERE
-
+            # Filter noise; buoy detections are larger than stray color blobs
+            if radius > 20:
+                detected.append((x, y, radius))
             ### END STUDENT CODE
         cv2.imshow("original_frame", self.frame)
         detected_sorted = sorted(detected, key=lambda x: x[2], reverse=True)
